@@ -18,31 +18,6 @@ pip install -e .
 
 ## Quick Start
 
-### `CNNBlockCfg` — configurable CNN block factory
-
-```python
-from creyone_layer import CNNBlockCfg
-
-# Default: 2D Conv + BatchNorm2d + ReLU with auto-padding
-cfg = CNNBlockCfg()
-
-# ConvNormAct block (Conv → Norm → Act)
-block = cfg.block_module(in_dim=32, out_dim=64, k=3)
-
-# Build each layer individually
-conv = cfg.conv_layer(32, 64, 3)   # Conv2d 3×3, auto-padded
-norm = cfg.norm_layer(64)           # BatchNorm2d
-act  = cfg.act_layer()              # ReLU
-pool = cfg.pool_layer(2)            # MaxPool2d k=2
-
-# Customize config per dimension / activation
-cfg_3d = CNNBlockCfg(tensor_dims=3, act_name='gelu', norm_name='layer')
-block_3d = cfg_3d.block_module(16, 32, k=3)
-
-# Per-call overrides (don't change cfg itself)
-dw_block = cfg.block_module(64, 64, k=3, name='depthwise')
-```
-
 ### Layer registry — `create_layer`
 
 ```python
