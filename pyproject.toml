@@ -23,7 +23,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://example.com"
-Documentation = "https://readthedocs.org"
+Documentation = "https://creyone-layer.readthedocs.io/en/latest/"
 Repository = "https://github.com/qnilix/creyone_layer.git"
 "Bug Tracker" = "https://github.com/qnilix/creyone_layer/issues"
 Changelog = "https://github.com/qnilix/creyone_layer/blob/master/CHANGELOG.md"
