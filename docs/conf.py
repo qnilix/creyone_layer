@@ -13,6 +13,7 @@ extensions = [
     "sphinx.ext.viewcode",
 ]
 
+autodoc_mock_imports = ["torch", ]
 autodoc_member_order = "bysource"
 autodoc_typehints = "description"
 napoleon_google_docstring = True

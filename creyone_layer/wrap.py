@@ -2,7 +2,6 @@ import inspect
 from typing import Optional, Union
 
 from torch import nn
-from creyone import cynn
 
 
 def _consume_args(args: tuple, kwargs: dict) -> tuple[list, dict]:
@@ -52,17 +51,6 @@ def _wrapfn(**kwargs):
     return s, p, d, g
 
 
-class AutoReshape(nn.Module):
-
-    def __init__(self, mid_layer: nn.Module):
-        super().__init__()
-        self._inner = mid_layer
-    
-    def forward(self, x: cynn.CreYonT) -> cynn.CreYonT:
-        x = x.rearrange('B (H W) C -> B C H W', H=x.H).contiguous()
-        return x(self._inner).rearrange('B C H W -> B (H W) C')
-
-
 def wrap_conv(cls: nn.Conv2d, opt: Union[set, str, None] = None):
     """Wrap a Conv Nd class with flexible argument parsing and optional behaviors.
 
@@ -87,9 +75,7 @@ def wrap_conv(cls: nn.Conv2d, opt: Union[set, str, None] = None):
         if 'ap' in opt: p = _compute_same_padding(args[-1], d)
         if 'dw' in opt: g = args[0]
 
-        ins = cls(*args, stride=s, padding=p, dilation=d, groups=g, **kwargs)
-        if 'ar' in opt: ins = AutoReshape(ins)
-        return ins
+        return cls(*args, stride=s, padding=p, dilation=d, groups=g, **kwargs)
     
     return _fn
 
@@ -120,9 +106,7 @@ def wrap_pool(cls, opt: Union[set, str, None] = None):
         if 'ap' in opt: p = _compute_same_padding(k, d if _has_dilation else 1)
 
         extra = {'dilation': d} if _has_dilation else {}
-        ins = cls(k, stride=s, padding=p, **extra, **kwargs)
-        if 'ar' in opt: ins = AutoReshape(ins)
-        return ins
+        return cls(k, stride=s, padding=p, **extra, **kwargs)
 
     return _fn
 
