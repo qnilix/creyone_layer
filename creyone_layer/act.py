@@ -73,14 +73,14 @@ def sigmoid(overwrite: Optional[nn.Module] = None, **kwargs):
     return nn.Sigmoid
 
 @register_layer('act')
-def hardsig(overwrite: Optional[nn.Module] = None, **kwargs):
+def hardsig(overwrite: Optional[nn.Module] = None, inplace: bool = False, **kwargs):
     if overwrite is not None: return overwrite
-    return HardSigmoid
+    return partial(HardSigmoid, inplace=inplace)
 
 @register_layer('act')
-def hardswish(overwrite: Optional[nn.Module] = None, **kwargs):
+def hardswish(overwrite: Optional[nn.Module] = None, inplace: bool = False, **kwargs):
     if overwrite is not None: return overwrite
-    return HardSwish
+    return partial(HardSwish, inplace=inplace)
 
 @register_layer('act')
 def quickgelu(overwrite: Optional[nn.Module] = None, **kwargs):
