@@ -11,7 +11,7 @@ pip install creyone-layer
 From source:
 
 ```bash
-git clone https://github.com/qaiLN/creyone.git
+git clone https://github.com/qnilix/creyone_layer.git
 cd creyone_layer
 pip install -e .
 ```
