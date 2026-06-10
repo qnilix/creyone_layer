@@ -53,7 +53,7 @@ class AutoReshape(nn.Module):
         return x(self._inner).rearrange('B C H W -> B (H W) C')
 
 
-def wrap_conv(cls: nn.Conv2d, optional: str = None):
+def wrap_conv(cls: nn.Conv2d, opt: Union[set, str] = set()):
     """Wrap a Conv Nd class with flexible argument parsing and optional behaviors.
 
     Args:
@@ -67,17 +67,17 @@ def wrap_conv(cls: nn.Conv2d, optional: str = None):
         A factory function that accepts (c1, c2, k, ...) positionally or as kwargs
         and forwards them to ``cls`` with stride, padding, dilation, and groups set.
     """
-    optional = (optional or '').split('+')
+    if isinstance(opt, str): opt = set(opt.split('+'))
 
     def _fn(*args, **kwargs):
         args, kwargs = _consume_args(args, kwargs)
         s, p, d, g = _wrapfn(**kwargs)
-        if 'grid' in optional: s = args[-1]
-        if 'ap' in optional: p = _compute_same_padding(args[-1], d)
-        if 'dw' in optional: g = args[0]
+        if 'grid' in opt: s = args[-1]
+        if 'ap' in opt: p = _compute_same_padding(args[-1], d)
+        if 'dw' in opt: g = args[0]
 
         ins = cls(*args, stride=s, padding=p, dilation=d, groups=g, **kwargs)
-        if 'ar' in optional: ins = AutoReshape(ins)
+        if 'ar' in opt: ins = AutoReshape(ins)
         return ins
     
     return _fn
