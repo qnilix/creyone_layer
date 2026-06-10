@@ -10,7 +10,7 @@ _layer_entrypoints: dict[str, dict[str, Callable[..., Any]]] = defaultdict(dict)
 
 def register_layer(layer_family: str = 'any'):
 
-    def _register_layer(fn: Callable[..., any]) -> Callable[..., any]:
+    def _register_layer(fn: Callable[..., Any]) -> Callable[..., Any]:
 
         # lookup containing module
         mod = sys.modules[fn.__module__]
@@ -39,11 +39,11 @@ def register_layer(layer_family: str = 'any'):
 
 def layer_entrypoint(layer_name: str, 
                      layer_family: Optional[str] = None, 
-                     module_filter: Optional[str] = None) -> Callable[..., any]:
+                     module_filter: Optional[str] = None) -> Callable[..., Any]:
     """Fetch a model entrypoint for specified model name
     """
     if module_filter and layer_name not in _module_to_layers.get(module_filter, set()):
-        raise RuntimeError(f'Model ({layer_name} not found in module {module_filter}.)')
+        raise RuntimeError(f'Model ({layer_name}) not found in module {module_filter}.')
     if layer_family is not None and layer_name in _layer_entrypoints[layer_family]: 
         return _layer_entrypoints[layer_family][layer_name]
     if layer_name not in _layer_entrypoints['any']:
