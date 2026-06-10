@@ -6,9 +6,9 @@ from .wrap import wrap_conv
 
 def _base(dim: int, opt: set | None = None):
     if opt is None: opt = set()
-    if dim == 1: return wrap_conv(nn.Conv1d, optional=opt)
-    if dim == 2: return wrap_conv(nn.Conv2d, optional=opt)
-    if dim == 3: return wrap_conv(nn.Conv3d, optional=opt)
+    if dim == 1: return wrap_conv(nn.Conv1d, opt=opt)
+    if dim == 2: return wrap_conv(nn.Conv2d, opt=opt)
+    if dim == 3: return wrap_conv(nn.Conv3d, opt=opt)
     raise ValueError(f'Unsupported dim: {dim}')
 
 

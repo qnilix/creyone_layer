@@ -1,3 +1,4 @@
+import inspect
 from typing import Optional, Union
 
 from torch import nn
@@ -93,14 +94,16 @@ def wrap_conv(cls: nn.Conv2d, opt: Union[set, str, None] = None):
     return _fn
 
 
-def wrap_pool(cls: nn.MaxPool2d, opt: Union[set, str, None] = None):
+def wrap_pool(cls, opt: Union[set, str, None] = None):
     """Wrap a pooling class with flexible argument parsing and optional behaviors.
 
     Args:
-        cls: A PoolNd-compatible class to wrap.
+        cls: A PoolNd-compatible class to wrap. Dilation is forwarded automatically
+             only when the class supports it (MaxPoolNd does, AvgPoolNd does not).
         opt: A '+'-separated string of option flags:
             - 'grid': use the kernel size arg as the stride (grid-like sampling).
             - 'ap':   auto-pad so the output spatial size matches the input.
+            - 'ar':   wrap output in AutoReshape for (B HW C) tensors.
 
     Returns:
         A factory function that accepts (k, ...) positionally or as kwargs
@@ -108,14 +111,16 @@ def wrap_pool(cls: nn.MaxPool2d, opt: Union[set, str, None] = None):
     """
     if opt is None: opt = set()
     elif isinstance(opt, str): opt = set(opt.split('+'))
+    _has_dilation = 'dilation' in inspect.signature(cls).parameters
 
     def _fn(*args, **kwargs):
         k, kwargs = _consume_pool_args(args, kwargs)
         s, p, d, _ = _wrapfn(**kwargs)
         if 'grid' in opt: s = k
-        if 'ap' in opt: p = _compute_same_padding(k, d)
+        if 'ap' in opt: p = _compute_same_padding(k, d if _has_dilation else 1)
 
-        ins = cls(k, stride=s, padding=p, dilation=d, **kwargs)
+        extra = {'dilation': d} if _has_dilation else {}
+        ins = cls(k, stride=s, padding=p, **extra, **kwargs)
         if 'ar' in opt: ins = AutoReshape(ins)
         return ins
 
