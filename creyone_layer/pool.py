@@ -15,7 +15,7 @@ def _avg(dim: int, opt: set | None = None):
 
 
 @register_layer('pool')
-def max(dim: int = 2, optional: str = '') -> callable:
+def maxpool(dim: int = 2, optional: str = '') -> callable:
     return _max(dim, opt=set(optional.split('+')))
 
 

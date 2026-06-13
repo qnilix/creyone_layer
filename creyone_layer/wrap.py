@@ -1,5 +1,5 @@
 import inspect
-from typing import Optional, Union
+from typing import Union
 
 from torch import nn
 
@@ -29,7 +29,7 @@ def _consume_pool_args(args: tuple, kwargs: dict) -> tuple:
     return k, kwargs
 
 
-def _compute_same_padding(k: int, d: int = 1) -> Union[int, list[int]]:  # kernel, padding, dilation
+def _compute_same_padding(k: Union[int, list[int]], d: int = 1) -> Union[int, list[int]]:  # kernel, padding, dilation
     """Pad to 'same' shape outputs."""
     if isinstance(k, int): k = [k] 
     if d > 1: k = [d * (x - 1) + 1 for x in k]  # actual kernel-size
@@ -51,7 +51,7 @@ def _wrapfn(**kwargs):
     return s, p, d, g
 
 
-def wrap_conv(cls: nn.Conv2d, opt: Union[set, str, None] = None):
+def wrap_conv(cls: type[nn.Conv2d], opt: Union[set, str, None] = None):
     """Wrap a Conv Nd class with flexible argument parsing and optional behaviors.
 
     Args:
@@ -89,7 +89,6 @@ def wrap_pool(cls, opt: Union[set, str, None] = None):
         opt: A '+'-separated string of option flags:
             - 'grid': use the kernel size arg as the stride (grid-like sampling).
             - 'ap':   auto-pad so the output spatial size matches the input.
-            - 'ar':   wrap output in AutoReshape for (B HW C) tensors.
 
     Returns:
         A factory function that accepts (k, ...) positionally or as kwargs
