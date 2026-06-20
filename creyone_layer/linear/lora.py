@@ -1,9 +1,3 @@
-# Copyright (c) 2026 QNiLix
-# Licensed under the MIT License (MIT). 
-#
-# Portions based on loralib by Microsoft Corporation
-# (https://github.com/microsoft/LoRA), licensed under the MIT License.
-
 """ Linear layer with Low-Rank Adaptation (LoRA)
 
 Copyright 2026 Rinka Kiriyama。
@@ -64,7 +58,6 @@ class LoRALinear(nn.Linear):
             # B: initialised to zero so the LoRA delta starts at zero.
             self.adwA = nn.Parameter(self.weight.new_empty((lora_r, in_features)))
             self.adwB = nn.Parameter(self.weight.new_zeros((out_features, lora_r)))
-            nn.init.kaiming_uniform_(self.adwA, a=5 ** 0.5)
             self.scaling = alpha / lora_r
         if fan_in_fan_out:
             self.weight.data = self.weight.data.transpose(0, 1)
