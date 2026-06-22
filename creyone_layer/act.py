@@ -73,6 +73,11 @@ def sigmoid(overwrite: Optional[nn.Module] = None, **kwargs):
     return nn.Sigmoid
 
 @register_layer('act')
+def silu(overwrite: Optional[nn.Module] = None, inplace: bool = False, **kwargs):
+    if overwrite is not None: return overwrite
+    return partial(nn.SiLU, inplace=inplace)
+
+@register_layer('act')
 def hardsig(overwrite: Optional[nn.Module] = None, inplace: bool = False, **kwargs):
     if overwrite is not None: return overwrite
     return partial(HardSigmoid, inplace=inplace)
