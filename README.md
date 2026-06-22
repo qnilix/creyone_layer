@@ -31,12 +31,12 @@ pool = create_layer('max',   'pool')(dim=2, optional='ap')(2)
 
 ## Registered Layers
 
-| Family | Names                                                                               |
-| ------ | ----------------------------------------------------------------------------------- |
-| `conv` | `base`, `depthwise`                                                                 |
-| `norm` | `batch`, `layer`                                                                    |
-| `act`  | `relu`, `relu6`, `gelu`, `quickgelu`, `sigmoid`, `hardsig`, `hardswish`, `swisheff` |
-| `pool` | `max`, `avg`                                                                        |
+| Family | Names                                                                                       |
+| ------ | ------------------------------------------------------------------------------------------- |
+| `conv` | `base`, `depthwise`                                                                         |
+| `norm` | `batch`, `layer`                                                                            |
+| `act`  | `relu`, `relu6`, `gelu`, `quickgelu`, `sigmoid`, `silu`, `hardsig`, `hardswish`, `swisheff` |
+| `pool` | `max`, `avg`                                                                                |
 
 ### `conv` options (passed via `optional='...'`, `+`-separated)
 
