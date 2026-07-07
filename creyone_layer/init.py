@@ -1,10 +1,32 @@
 from functools import partial
 from typing import Union
 
+import torch
 import torch.nn as nn
 import torch.nn.init as init
 
 from .linear import LoRALinear
+
+
+def same_as_linear(w: torch.Tensor, group_dim: int = None):
+    """Initialize a weight tensor the same way ``nn.Linear`` initializes its weight.
+
+    Args:
+        w: Weight tensor to initialize in-place. Must be 2D, unless ``group_dim``
+            is given, in which case ``w`` must be 2D after removing ``group_dim``
+            (i.e. every slice along ``group_dim`` is 2D).
+        group_dim: If given, apply the initialization independently to each
+            slice along this dimension instead of to ``w`` as a whole.
+    """
+    if group_dim is None:
+        if w.dim() != 2:
+            raise ValueError("w must be 2D unless group_dim is given")
+        nn.init.kaiming_uniform_(w, a = 5 ** 0.5)
+        return
+    if w.dim() != 3:
+        raise ValueError("w must be 2D after removing group_dim")
+    for i in range(w.shape[group_dim]):
+        nn.init.kaiming_uniform_(w.select(group_dim, i), a = 5 ** 0.5)
 
 
 def init_lora_(x: LoRALinear, mode: str = 'trunc_',
@@ -17,7 +39,7 @@ def init_lora_(x: LoRALinear, mode: str = 'trunc_',
     Args:
         x: A LoRALinear module whose parameters will be initialized.
         mode: Prefix for the ``torch.nn.init`` function to use when
-            ``general_init=False`` (e.g. ``'trunc_'`` → ``trunc_normal_``).
+            ``general_init=False`` (e.g. ``'trunc_'`` -> ``trunc_normal_``).
         general_init: If True, use Kaiming uniform for adwA and zeros for adwB.
             If False, apply the distribution specified by ``mode`` to both.
         **kwargs: Additional keyword arguments forwarded to the init function.
@@ -25,7 +47,7 @@ def init_lora_(x: LoRALinear, mode: str = 'trunc_',
     for k, v in x.named_parameters():
         if k.split('.')[-1] == 'adwA':
             if general_init:
-                nn.init.kaiming_uniform_(v, a = 5 ** 0.5)
+                same_as_linear(v)
             else:
                 getattr(init, f"{mode}normal_")(v, **kwargs)
         if k.split('.')[-1] == 'adwB':
@@ -44,9 +66,7 @@ def init_linear_(x: Union[nn.Linear, nn.Conv2d],
 
     Args:
         x: An ``nn.Linear`` or ``nn.Conv2d`` module to initialize.
-        mode: Prefix for the ``torch.nn.init`` function
-            (``''`` → ``normal_``, ``'trunc_'`` → ``trunc_normal_``,
-            ``'kaiming_'`` → ``kaiming_normal_``).
+        mode: Prefix for the ``torch.nn.init`` function (``''``: ``normal_``, ``'trunc_'``: ``trunc_normal_``, ``'kaiming_'``: ``kaiming_normal_``.)
         std: Standard deviation used when ``mode`` is ``''`` or ``'trunc_'``.
         fan: Fan mode passed to ``kaiming_normal_`` when ``mode='kaiming_'``.
         **kwargs: Additional keyword arguments forwarded to the init function.
