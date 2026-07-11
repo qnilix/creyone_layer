@@ -29,8 +29,8 @@ def same_as_linear(w: torch.Tensor, group_dim: int = None):
         nn.init.kaiming_uniform_(w.select(group_dim, i), a = 5 ** 0.5)
 
 
-def init_lora_(x: LoRALinear, mode: str = 'trunc_', 
-               general_init: bool = True, zeroB: bool = True, 
+def init_lora_(x: LoRALinear, mode: str = 'trunc_',
+               general_init: bool = True, zeroB: bool = False,
                linear_init: bool = False, **kwargs):
     """Initialize LoRA adapter weights in-place.
 
@@ -84,7 +84,7 @@ def init_linear_(x: Union[nn.Linear, nn.Conv2d],
 
 
 def apply_init(x: Union[nn.Linear, nn.Conv2d],
-               general_init: bool = True, zeroB: bool = True, **kwargs):
+               general_init: bool = True, zeroB: bool = False, **kwargs):
     """Apply weight initialization to a linear, conv, or LoRA layer in-place.
 
     For ``LoRALinear``, initializes both the base linear weights and the LoRA
@@ -95,6 +95,9 @@ def apply_init(x: Union[nn.Linear, nn.Conv2d],
         x: Module to initialize.
         general_init: Passed to ``init_lora_`` to choose between standard LoRA
             initialization (Kaiming + zeros) and the custom distribution.
+        zeroB: Passed to ``init_lora_``. If True (and ``general_init`` is
+            False), still initialize adwB with zeros instead of the
+            distribution specified by ``mode``.
         **kwargs: Forwarded to ``init_linear_`` and ``init_lora_``.
     """
     if isinstance(x, LoRALinear):
