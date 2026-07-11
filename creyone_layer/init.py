@@ -99,7 +99,7 @@ def apply_init(x: Union[nn.Linear, nn.Conv2d],
     init_linear_(x, **kwargs)
 
 
-def init_linear(mode: str = 'trunc_', std: float = .02, fan: str = 'fan_in'):
+def init_linear(mode: str = 'trunc_', std: float = .02, fan: str = 'fan_in', **kwargs):
     """Return a callable that initializes a linear/conv/LoRA layer with fixed settings.
 
     Convenient for use with ``module.apply()``.
@@ -112,7 +112,7 @@ def init_linear(mode: str = 'trunc_', std: float = .02, fan: str = 'fan_in'):
     Returns:
         A partial of ``apply_init`` with ``mode``, ``std``, and ``fan`` bound.
     """
-    return partial(apply_init, mode=mode, std=std, fan=fan)
+    return partial(apply_init, mode=mode, std=std, fan=fan, **kwargs)
 
 
 def init_norm_(x: nn.Module, val: float = 1.0):
