@@ -98,7 +98,7 @@ def apply_init(x: Union[nn.Linear, nn.Conv2d],
         **kwargs: Forwarded to ``init_linear_`` and ``init_lora_``.
     """
     if isinstance(x, LoRALinear):
-        init_lora_(x, general_init=general_init, zeroB=zeroB, **kwargs)
+        init_lora_(x, general_init=general_init, zeroB=zeroB, linear_init=True, **kwargs)
         return
     if not isinstance(x, (nn.Linear, nn.Conv2d)): return
     init_linear_(x, **kwargs)
