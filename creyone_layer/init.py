@@ -30,7 +30,8 @@ def same_as_linear(w: torch.Tensor, group_dim: int = None):
 
 
 def init_lora_(x: LoRALinear, mode: str = 'trunc_', 
-               general_init: bool = True, zeroB: bool = True, **kwargs):
+               general_init: bool = True, zeroB: bool = True, 
+               linear_init: bool = False, **kwargs):
     """Initialize LoRA adapter weights in-place.
 
     Initializes adwA with Kaiming uniform (general) or truncated/normal distribution,
@@ -42,9 +43,13 @@ def init_lora_(x: LoRALinear, mode: str = 'trunc_',
             ``general_init=False`` (e.g. ``'trunc_'`` -> ``trunc_normal_``).
         general_init: If True, use Kaiming uniform for adwA and zeros for adwB.
             If False, apply the distribution specified by ``mode`` to both.
+        zeroB: If True (and ``general_init`` is False), still initialize adwB
+            with zeros instead of the distribution specified by ``mode``.
+        linear_init: If True, also initialize the base linear weights of ``x``
+            via ``init_linear_`` before initializing the LoRA adapters.
         **kwargs: Additional keyword arguments forwarded to the init function.
     """
-    init_linear_(x, mode=mode, **kwargs)
+    if linear_init: init_linear_(x, mode=mode, **kwargs)
     for k, v in x.named_parameters():
         if k.split('.')[-1] == 'adwA':
             if general_init:
