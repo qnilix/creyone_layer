@@ -29,8 +29,8 @@ def same_as_linear(w: torch.Tensor, group_dim: int = None):
         nn.init.kaiming_uniform_(w.select(group_dim, i), a = 5 ** 0.5)
 
 
-def init_lora_(x: LoRALinear, mode: str = 'trunc_',
-               general_init: bool = True, **kwargs):
+def init_lora_(x: LoRALinear, mode: str = 'trunc_', 
+               general_init: bool = True, zeroB: bool = True, **kwargs):
     """Initialize LoRA adapter weights in-place.
 
     Initializes adwA with Kaiming uniform (general) or truncated/normal distribution,
@@ -44,6 +44,7 @@ def init_lora_(x: LoRALinear, mode: str = 'trunc_',
             If False, apply the distribution specified by ``mode`` to both.
         **kwargs: Additional keyword arguments forwarded to the init function.
     """
+    init_linear_(x, mode=mode, **kwargs)
     for k, v in x.named_parameters():
         if k.split('.')[-1] == 'adwA':
             if general_init:
@@ -51,7 +52,7 @@ def init_lora_(x: LoRALinear, mode: str = 'trunc_',
             else:
                 getattr(init, f"{mode}normal_")(v, **kwargs)
         if k.split('.')[-1] == 'adwB':
-            if general_init:
+            if general_init or zeroB:
                 nn.init.zeros_(v)
             else:
                 getattr(init, f"{mode}normal_")(v, **kwargs)
@@ -78,7 +79,7 @@ def init_linear_(x: Union[nn.Linear, nn.Conv2d],
 
 
 def apply_init(x: Union[nn.Linear, nn.Conv2d],
-               general_init: bool = True, **kwargs):
+               general_init: bool = True, zeroB: bool = True, **kwargs):
     """Apply weight initialization to a linear, conv, or LoRA layer in-place.
 
     For ``LoRALinear``, initializes both the base linear weights and the LoRA
@@ -92,8 +93,7 @@ def apply_init(x: Union[nn.Linear, nn.Conv2d],
         **kwargs: Forwarded to ``init_linear_`` and ``init_lora_``.
     """
     if isinstance(x, LoRALinear):
-        init_linear_(x, **kwargs)
-        init_lora_(x, general_init=general_init, **kwargs)
+        init_lora_(x, general_init=general_init, zeroB=zeroB, **kwargs)
         return
     if not isinstance(x, (nn.Linear, nn.Conv2d)): return
     init_linear_(x, **kwargs)
